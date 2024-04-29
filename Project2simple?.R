@@ -133,18 +133,23 @@ ui= fluidPage(
   titlePanel("Happiness Equation"),
   sidebarLayout(
     sidebarPanel(
-    selectInput('columns', 'Pick 6 Columns', choices=colnames(Countriesnew), multiple = T),
+    selectInput('columns', 'Pick 6 Columns', choices=colnames(Countriesnew)[-which(colnames(Countriesnew)=='Country')], multiple = T),
     selectInput('country', 'Pick Your Country', choices=Countriesnew$Country, multiple=F),
     actionButton('do_the_math', 'Do the Math!')
   ),
   mainPanel(
     strong(span("Important Information", style='color:purple')),
+    p(span("This dashboard calculates a score from 0-10 that evaluates how happy
+    you would be in a country of your choice. The higher the better! The 
+    equation it works with is based on Gallup's World Happiness Report. This 
+    dashboard allows you to pick your own variables, so you can calculate a 
+    score based on what is actually important to you!", style='color:purple')),
     p("Pick six factors based on their importance to you. The first one 
       you pick should be the most important, the second second, and so on."),
     p("The letters 'WH' signify that you want the value to be high.", 
       em("For example, if high Fertility was important, you would look for", 
        span("WHFertility", style='color:purple'), "." )),
-    p("The same holds true for variables you want to be low."),
+    p("The same holds true for variables you want to be low and the letters 'WL.'"),
     strong(span("Variable Breakdown", style='color:purple')),
     p("Agricultural Land: the percentage of the country used for ag purposes"),
     p("Forested Area: % of the country that is forest"),
@@ -167,19 +172,19 @@ ui= fluidPage(
     p("Urban pop: % of pop. living in urban areas"),
     p(" "))),
     shinydashboard::box(
-    title="Result", verbatimTextOutput('resulttext')
+    title="Happiness Score", verbatimTextOutput('resulttext')
   ),
   box(title='Past Results', tableOutput('last3_table'))
   )
 server=function(input, output) {
   last3 = reactiveValues(data=data.frame(Country=character(), Score=numeric()))
   observeEvent(input$do_the_math, {
-    print("Button clicked")
-    print(mean_of_exp)
+    #print("Button clicked") These were testing prints. I was getting errors when working on this, so I placed them here to make sure it would get this far.
+    #print(mean_of_exp)
     selectedcolumns = input$columns
     countryname = input$country
     if(length(selectedcolumns) != 6 || nchar(countryname)==0){
-      output$resulttext = renderText({ "I said 6 columns, and 1 country. Be so nice right now."})
+      output$resulttext = renderText({ "I said 6 columns, and 1 country. Listen better."})
       return()
     }
     WHRfactors= c(16.49391767, 2.92184066, 1.83984923, 0.54805482, 0.37010395,
@@ -195,13 +200,13 @@ server=function(input, output) {
     values = unlist(sapply(selectedcolumns, function(col) {
       Countriesnew[rowindex, col]
     }))
-    print(values)
+    #print(values). This is the same kind of thing as the comments above.
     result = ((sum(values*WHRfactors))/2) -1.775
     Country=input$Country
     newtable=data.frame(Country=countryname, Score=result)
     last3$data=rbind(last3$data,newtable)
     output$resulttext = renderPrint({
-      paste("Ta-da!", result)
+      paste("Happiness Score", result)
     })
   })
   output$last3_table = renderTable({tail(last3$data, 3)})}
