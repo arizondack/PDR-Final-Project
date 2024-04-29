@@ -3,8 +3,6 @@ library(dplyr)
 setwd('/Users/faithshimick/Downloads')
 WHRraw = read_csv("DataForFigure2.1WHR2023 (1).csv")
 Countriesraw= read_csv("world-data-2023.csv")
-View(WHRraw)
-View(Countriesraw)
 colnames(WHRraw)
 WHR.props = WHRraw %>%
   filter(row_number() !=99)%>%
@@ -21,7 +19,6 @@ WHR.props = WHRraw %>%
          `Explained by: Generosity`, `Perceptions of corruption`,
          `Explained by: Perceptions of corruption`,
          `Ladder score in Dystopia`, `Dystopia + residual`)
-View(WHR.props)
 mean_of_var= c((summary(WHR.props$adjGDP)[4]), 
                (summary(WHR.props$`Social support`)[4]),
                (summary(WHR.props$adjLifeEx)[4]),
@@ -49,7 +46,6 @@ WHR.props=WHR.props%>%
   mutate(eqscore=(GDPf*adjGDP)+(SSf*SocSup)+(LEf*adjLifeEx)+(FLCf*LifeChoice)+(Genf*Gener)+(CPf*(1-CorPer)))%>%
   mutate(eqscore=(eqscore/2)-.[[18]])
 colnames(WHR.props)
-View(WHR.props)
 summary(WHR.props$eqscore)
 
 Countriesnew=Countriesraw%>%
@@ -71,7 +67,6 @@ Countriesnew=Countriesraw%>%
   mutate(`GDP`=as.numeric(gsub('[\\$,]', '', `GDP`)))%>%
   mutate(GDPpercap=`GDP`/`Population`)
 Countriesnew=Countriesnew[complete.cases(Countriesnew),]
-View(Countriesnew)
 summary(Countriesnew$GDPpercap)
 AgriculturalLand=Countriesnew$`Agricultural Land( %)`
 Countriesnew=Countriesnew%>%
@@ -121,7 +116,6 @@ Countriesnew=Countriesnew%>%
          WLOPHealth, WHOPHealth, WLUnempRate, WHUnempRate, WHDensity, WLDensity,
          WHArmedForces, WLArmedForces, WHFertility, WLFertility, WHUrbanpop, 
          WLUrbanpop)
-View(Countriesnew)
 colnames(Countriesnew)
 
 install.packages('shinydashboard')
@@ -210,7 +204,5 @@ server=function(input, output) {
     })
   })
   output$last3_table = renderTable({tail(last3$data, 3)})}
-shinyApp(ui, server)
-
-install.packages('prettydoc')
-library(prettydoc)
+app=shinyApp(ui, server)
+runApp(app)
